@@ -7,24 +7,34 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
+// process EACH PACKET AS IT HITS THE WIRE
 func process(packet gopacket.Packet) error {
 
+	// GET THE IP AND ICMP LAYERS
 	var ip4, icmp gopacket.Layer
 	var ip4Layer *layers.IPv4
 	var icmpLayer *layers.ICMPv4
+
 	ip4 = packet.Layer(layers.LayerTypeIPv4)
 	if ip4 == nil { return errors.New("packet did not contain an IPv4 layer")}
 
 	icmp = packet.Layer(layers.LayerTypeICMPv4)
 	if icmp == nil { return errors.New("packet did not contain an ICMP layer")}
 
+	// IF THE PACKET IS NOT AN ECHO REQUEST WE SHOULD DISCARD IT
+	// GRAB THE PAYLOAD, GOPACKET CONSIDERS THIS APPLICATION LAYER. THIS IS ALSO AVAILABLE IN THE ICMP LAYER.
 	payload := packet.ApplicationLayer().(*gopacket.Payload)
 	ip4Layer, _ = ip4.(*layers.IPv4)
 	icmpLayer, _ = icmp.(*layers.ICMPv4)
 
+	// MAKE SURE WE'RE ONLY READING ECHO REQUESTS TO OUR INTERFACE
+	if ip4Layer.DstIP.String() != iFaceAddress || icmpLayer.TypeCode.Type() != layers.ICMPv4TypeEchoRequest {
+		return nil
+	}
+
 	fmt.Println("Packet:\n----------------------------------")
-	fmt.Println("IPv4 ", ip4Layer)
-	fmt.Println("ICMP ", icmpLayer)
+	fmt.Printf("IPv4: %+v\n", ip4Layer)
+	fmt.Printf("ICMP: %+v\n", icmpLayer)
 	fmt.Println("Payload", payload.LayerContents(), len(payload.LayerContents()))
 
 	return nil

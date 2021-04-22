@@ -8,18 +8,17 @@ import (
 	"fmt"
 )
 
+var iFaceName, iFaceAddress string
 
 func main() {
 
 	// COMMAND LINE ARGUMENT PARSING
-	var iFaceStr string
-
-	flag.StringVar(&iFaceStr, "interface", "eth0", "The name of the network interface to listen on")
+	flag.StringVar(&iFaceName, "interface", "eth0", "The name of the network interface to listen on")
 	flag.Parse()
 
 	// GET INTERFACE IP ADDRESS
-	fmt.Printf("Capturing packets on interface %s\n", iFaceStr)
-	iFace, err := net.InterfaceByName(iFaceStr)
+	fmt.Printf("Capturing packets on interface %s\n", iFaceName)
+	iFace, err := net.InterfaceByName(iFaceName)
 	if err != nil {panic (err)}
 	addrs, err := iFace.Addrs()
 	if err != nil {panic (err)}
@@ -29,14 +28,15 @@ func main() {
 		interfaceAddress = addr.(*net.IPNet).IP.To4()
 		break
 	}
-	fmt.Printf("Interface IP address is %s\n", interfaceAddress.String())
+	iFaceAddress = interfaceAddress.String()
+	fmt.Printf("Interface IP address is %s\n", iFaceAddress)
 
 	// CREATE THE PACKET CAPTURE
-	handle, err := pcap.OpenLive(iFaceStr, 3600, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(iFaceName, 3600, true, pcap.BlockForever)
 	if err != nil {
 		panic(err)
 	}
-	filter := fmt.Sprintf("icmp and ip.dst == %s", interfaceAddress)
+	filter := fmt.Sprintf("icmp and ip.dst == %s and icmp.type == 8", interfaceAddress)
 	handle.SetBPFFilter(filter)
 
 	// FILTER FOR ICMP MESSAGES DESTINED TO MY INTERFACE
