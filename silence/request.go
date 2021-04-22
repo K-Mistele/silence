@@ -43,3 +43,12 @@ func (r *RequestMessage) Marshall() []byte {
 
 	return headerBytes
 }
+
+// NullBody IS A NULL BODY THAT'S JUST 4 NULL BYTES
+type NullBody struct {
+}
+
+// Marshall WILL SERIALIZE THE NULL BODY AND RETURN IT
+func (nb *NullBody) Marshall() []byte {
+	return []byte {0, 0, 0, 0}
+}
