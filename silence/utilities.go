@@ -1,6 +1,7 @@
 package silence
 
 import (
+	"bytes"
 	"encoding/binary"
 )
 
@@ -23,4 +24,24 @@ func xorEncode(bytes *[]byte, key uint32) []byte {
 // xorDecode IS AN ALIAS FOR xorEncode - THAT'S HOW XOR ENCODING/DECODING WORK
 func xorDecode(bytes *[]byte, key uint32) []byte {
 	return xorEncode(bytes, key)
+}
+
+// compareRequestMessages RETURNS IF TWO MESSAGES MATCH
+func compareRequestMessages (m *RequestMessage, m2 *RequestMessage) (bool, string){
+	if m.Type != m2.Type {
+		return false, "Message Types don't match"
+	}
+	if m.SequenceNumber != m2.SequenceNumber {
+		return false, "message sequence numbers don't match"
+	}
+	if m.Nonce != m2.Nonce {
+		return false, "nonces don't match"
+	}
+	b1 := m.Body.Marshall()
+	b2 := m2.Body.Marshall()
+	if bytes.Compare(b1, b2) != 0 {
+		return false, "bodies don't match"
+	}
+
+	return true, ""
 }

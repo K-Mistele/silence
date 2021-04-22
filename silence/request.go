@@ -50,7 +50,6 @@ func (r *RequestMessage) Marshall() []byte {
 
 	bodyBytes := r.Body.Marshall()
 	encodedBytes := xorEncode(&bodyBytes, r.Nonce)
-	// TODO: XOR THIS WITH THE NONCE
 	headerBytes = append(headerBytes, encodedBytes...)
 
 	fmt.Println(headerBytes)
@@ -79,7 +78,7 @@ func (r *RequestMessage) Unmarshall(data []byte) {
 	decoded := xorDecode(&payload, r.Nonce)
 
 	if r.Type == ReadyForCommand {
-		r.Body = &NullRequestBody{}
+		r.Body = &ReadyForCommandBody{}
 		r.Body.Unmarshall(decoded)
 	} else {
 		// DEFAULT
@@ -123,5 +122,20 @@ func (nb *NullRequestBody) Marshall() []byte {
 // Unmarshall WILL UPDATE THE POINTER WITH THE PROPERTIES FROM THE BYTES
 func (nb *NullRequestBody) Unmarshall(b []byte) {
 	nb.Data = []byte {0, 0, 0, 0}
+}
+
+// ReadyForCommandBody IS EMPTY SINCE NO DATA IS NEEDED
+type ReadyForCommandBody struct {
+
+}
+
+// Marshall WILL SERIALIZE IT TO NOTHING :)
+func (rcb *ReadyForCommandBody) Marshall() []byte {
+	return []byte{}
+}
+
+// Unmarshall WILL DESERIALIZE IT TO NOTHING :)
+func (rcb *ReadyForCommandBody) Unmarshall(b []byte)  {
+	return
 }
 

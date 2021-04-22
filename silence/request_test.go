@@ -2,6 +2,9 @@ package silence
 
 import (
 	"bytes"
+	"encoding/binary"
+	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -31,26 +34,51 @@ func TestRequestUnmarshall(t *testing.T) {
 		Type:           ReadyForCommand,
 		SequenceNumber: 1,
 		Nonce:          0x41424344,
-		Body:           &NullRequestBody{},
+		Body:           &ReadyForCommandBody{},
 	}
 	b := m.Marshall()
 
 	// BUILD A SECOND RequestMessage AND UNMARSHALL THE FIRST ONE INTO IT
 	m2 := RequestMessage{}
 	m2.Unmarshall(b)
-	if m.Type != m2.Type {
-		t.Fatalf("Message Types don't match")
+	messagesMatch, errString := compareRequestMessages(&m, &m2)
+	if !messagesMatch {
+		t.Fatalf(errString)
 	}
-	if m.SequenceNumber != m2.SequenceNumber {
-		t.Fatalf("Message sequence numbers don't match")
+
+
+}
+
+// TEST THE READY FOR COMMAND MESSAGE
+func TestReadyForCommandMessage(t *testing.T) {
+	body := &ReadyForCommandBody{}
+	nonce := rand.Uint32()
+	nonceBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(nonceBytes, nonce)
+
+	message := RequestMessage{
+		Type: ReadyForCommand,
+		SequenceNumber: 2,
+		Nonce: nonce,
+		Body: body,
 	}
-	if m.Nonce != m2.Nonce {
-		t.Fatalf("Message nonces don't match!")
+
+	b := message.Marshall()
+	expected := []byte {uint8(ReadyForCommand), 2, nonceBytes[0], nonceBytes[1], nonceBytes[2], nonceBytes[3]}
+
+	if bytes.Compare(b, expected) != 0 {
+		t.Fatalf("Failed to construct a Ready for Command Message. Expected %v but got %v\n", expected, b)
 	}
-	b1 := m.Body.Marshall()
-	b2 := m2.Body.Marshall()
-	if bytes.Compare(b1, b2) != 0 {
-		t.Fatalf("%v should equal %v\n", b1, b2)
+
+	message2 := RequestMessage{}
+	message2.Unmarshall(b)
+	messagesMatch, errString := compareRequestMessages(&message, &message2)
+	if !messagesMatch {
+		fmt.Printf("%+v\n%+v\n", message.Body, message2.Body)
+		t.Fatalf(errString)
+
 	}
+
+
 
 }
