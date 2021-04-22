@@ -49,8 +49,9 @@ func (r *RequestMessage) Marshall() []byte {
 	headerBytes = append(headerBytes, nonceBytes...)
 
 	bodyBytes := r.Body.Marshall()
+	encodedBytes := xorEncode(&bodyBytes, r.Nonce)
 	// TODO: XOR THIS WITH THE NONCE
-	headerBytes = append(headerBytes, bodyBytes...)
+	headerBytes = append(headerBytes, encodedBytes...)
 
 	fmt.Println(headerBytes)
 
@@ -68,14 +69,18 @@ func (r *RequestMessage) Unmarshall(data []byte) {
 		}
 	}()
 
+	// PULL HEADER FIELDS OUT
 	r.Type = RequestMessageType(data[0])
 	r.SequenceNumber = data[1]
 	r.Nonce = binary.LittleEndian.Uint32(data[2:6])
 
-	// TODO DECRYPT THE BODY
+	// GET THE PAYLOAD SLICE AND DECODE IT - XOR BY NONCE
+	payload := data[6:]
+	decoded := xorDecode(&payload, r.Nonce)
+
 	if r.Type == ReadyForCommand {
 		r.Body = &NullRequestBody{}
-		r.Body.Unmarshall(data[6:])
+		r.Body.Unmarshall(decoded)
 	} else {
 		// DEFAULT
 		r.Body = &NullRequestBody{}

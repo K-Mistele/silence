@@ -18,14 +18,14 @@ func TestRequestMarshall(t *testing.T) {
 	b := m.Marshall()
 
 	// BUILD WHAT WE THINK RequestMessage SHOULD LOOK LIKE AND MAKE SURE THEY MATCH
-	c := []byte {0x01, 0x01, 0x44, 0x43, 0x42, 0x41, 0x00, 0x00, 0x00, 0x00}
+	c := []byte {0x01, 0x01, 0x44, 0x43, 0x42, 0x41, 0x00 ^ 0x44, 0x00 ^ 0x43, 0x00 ^ 0x42, 0x00 ^ 0x41}
 	if bytes.Compare(b, c) != 0 {
 		t.Fatalf("Serializing request failed: expected %v amd got %v\n", c, b)
 	}
 
 }
 
-func TestRequestUnmarshall(t* testing.T) {
+func TestRequestUnmarshall(t *testing.T) {
 	// BUILD A RequestMessage AND MARSHALL IT TO BYTES
 	m := RequestMessage{
 		Type:           ReadyForCommand,
@@ -46,6 +46,11 @@ func TestRequestUnmarshall(t* testing.T) {
 	}
 	if m.Nonce != m2.Nonce {
 		t.Fatalf("Message nonces don't match!")
+	}
+	b1 := m.Body.Marshall()
+	b2 := m2.Body.Marshall()
+	if bytes.Compare(b1, b2) != 0 {
+		t.Fatalf("%v should equal %v\n", b1, b2)
 	}
 
 }
