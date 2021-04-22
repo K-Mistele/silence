@@ -18,17 +18,17 @@ const (
 
 )
 
-// RequestMessageBody DEFINES AN INTERFACE FOR DIFFERENT REQUEST MESSAGE BODY TYPES
-type RequestMessageBody interface {
-	Marshall() []byte
-}
-
 // RequestMessage IS THE MESSAGE FOR A SILENCE REQUEST TO THE SERVER
 type RequestMessage struct {
 	Type 				RequestMessageType	// PROTOCOL MESSAGE TYPE
 	SequenceNumber		uint8				// SEQUENCE NUMBER, GOES 0->1->...255->0->1...
 	Nonce				uint32				// A RANDOM 32-BIT INTENER TO XOR WITH THE MESSAGE BODY
 	Body				RequestMessageBody	// A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
+}
+
+// RequestMessageBody DEFINES AN INTERFACE FOR DIFFERENT REQUEST MESSAGE BODY TYPES
+type RequestMessageBody interface {
+	Marshall() []byte
 }
 
 // Marshall WILL BUILD OUT THE RequestMessage INTO A STRING OF BYTES, PERFORMING ENCODING AS APPROPRIATE
@@ -46,9 +46,10 @@ func (r *RequestMessage) Marshall() []byte {
 
 // NullBody IS A NULL BODY THAT'S JUST 4 NULL BYTES
 type NullBody struct {
+	Data []byte
 }
 
 // Marshall WILL SERIALIZE THE NULL BODY AND RETURN IT
-func (nb *NullBody) Marshall() []byte {
+func (nb NullBody) Marshall() []byte {
 	return []byte {0, 0, 0, 0}
 }
