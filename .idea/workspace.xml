@@ -2,12 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15619055-0774-42a5-9afe-ea1a24a7c9b5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/silence/request_body.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/silence/response_body.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/silence/silence.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/silence/response_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/silence/request.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/request_body.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/request_body.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/request_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/request_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/silence/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/response.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/response_body.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/response_body.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

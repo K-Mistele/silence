@@ -15,6 +15,9 @@ type ResponseMessageBody interface{
 	Unmarshall([]byte) interface{}
 }
 
+////////////////////////////////////////////////////////////////////
+// ResponseBodyNull type
+////////////////////////////////////////////////////////////////////
 // ResponseBodyNull IS A NULL BODY THAT'S JUST 4 NULL BYTES - USED WHEN ONLY THE CODE IS IMPORTANT
 type ResponseBodyNull struct {
 	Data []byte
@@ -31,6 +34,14 @@ func (nb *ResponseBodyNull) Unmarshall(b []byte) interface{}{
 	return nil
 }
 
+// NewResponseBodyNull WILL CREATE A NEW ResponseBodyNull
+func NewResponseBodyNull() *ResponseBodyNull {
+	return &ResponseBodyNull{}
+}
+
+////////////////////////////////////////////////////////////////////
+// ResponseBodyExecuteCommands type
+////////////////////////////////////////////////////////////////////
 // ResponseBodyExecuteCommands DEFINES A LIST OF COMMANDS TO EXECUTE
 type ResponseBodyExecuteCommands struct {
 	Delimiter AsciiCharacter		// FOR EXTENSIBILITY IF USING UNIT SEPARATOR BECOMES A PROBLEM
@@ -115,4 +126,32 @@ func NewResponseBodyExecuteCommands(commands []string) *ResponseBodyExecuteComma
 	return body
 }
 
+////////////////////////////////////////////////////////////////////
+// ResponseBodyNoop type
+////////////////////////////////////////////////////////////////////
+// ResponseBodyTypeNoop SHOULD DO NOTHING AND SERIALIZE TO NOTHING
+type ResponseBodyNoop struct {
+	Placeholder []byte
+}
+
+// Marshall WILL SERIALIZE IT TO AN EMPTY BYTE STRING
+func (n *ResponseBodyNoop) Marshall() ([]byte, error) {
+	return []byte{}, nil
+}
+
+// Unmarshall WILL DO NOTHING
+func (n *ResponseBodyNoop) Unmarshall(b []byte) interface{} {
+	return nil
+}
+
+// NewResponseBodyNoop WILL BUILD A NEW ResponseBodyNoop STRUCT
+func NewResponseBodyNoop() *ResponseBodyNoop {
+	return &ResponseBodyNoop{
+		Placeholder: []byte{},
+	}
+}
+
+////////////////////////////////////////////////////////////////////
+// ResponseBodyNoop type
+////////////////////////////////////////////////////////////////////
 

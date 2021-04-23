@@ -6,15 +6,12 @@ import (
 	"math/rand"
 )
 
-
-
 // RequestMessageType DEFINES TYPE CODES FOR SILENCE REQUESTS
 type RequestMessageType uint8
 
 const (
-	RequestMessageTypeReadyForCommand     RequestMessageType = 0x01
-	RequestMessageTypeCommandAcknowledged RequestMessageType = 0x02
-	RequestMessageTypeCommandOutput       RequestMessageType = 0x03
+	RequestMessageTypeReadyForCommand RequestMessageType = 0x01
+	RequestMessagePrintCommandData    RequestMessageType = 0x02
 
 	// 0xF0-0xFF ARE ERROR CODES
 	RequestMessageTypeErrorWithDebug RequestMessageType = 0xF0
@@ -28,12 +25,12 @@ const (
 // RequestMessage IS THE MESSAGE FOR A SILENCE REQUEST TO THE SERVER
 // IMPLEMENTS SilenceMessage
 type RequestMessage struct {
-	Type			SilenceMessageType	// DEFINE THE MESSAGE TYPE
-	Code           	RequestMessageType 	// CODE SPECIFIC TO THE MESSAGE TYPE
-	SequenceNumber 	uint8              	// SEQUENCE NUMBER, GOES 0->1->...255->0->1...
-	AckNumber      	uint8              	// THE SEQUENCE NUMBER FROM THE SERVER LAST RECEIVED
-	Nonce          	uint32             	// A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE BODY
-	Body           	RequestMessageBody 	// A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
+	Type           SilenceMessageType // DEFINE THE MESSAGE TYPE
+	Code           RequestMessageType // CODE SPECIFIC TO THE MESSAGE TYPE
+	SequenceNumber uint8              // SEQUENCE NUMBER, GOES 0->1->...255->0->1...
+	AckNumber      uint8              // THE SEQUENCE NUMBER FROM THE SERVER LAST RECEIVED
+	Nonce          uint32             // A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE BODY
+	Body           RequestMessageBody // A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
 }
 
 // Marshall WILL BUILD OUT THE RequestMessage INTO A STRING OF BYTES, PERFORMING ENCODING AS APPROPRIATE
@@ -98,7 +95,7 @@ func (r *RequestMessage) Unmarshall(data []byte) (err interface{}) {
 // NewRequestMessage WILL BUILD A NEW RequestMessage WITH A RANDOM NONCE
 func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body RequestMessageBody) *RequestMessage {
 	return &RequestMessage{
-		Type: 			SilenceMessageRequest,
+		Type:           SilenceMessageRequest,
 		Code:           t,
 		SequenceNumber: seqNo,
 		AckNumber:      ack,
@@ -106,4 +103,3 @@ func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body Reques
 		Body:           body,
 	}
 }
-

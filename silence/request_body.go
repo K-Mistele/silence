@@ -10,6 +10,9 @@ type RequestMessageBody interface {
 	Unmarshall([]byte) interface{}
 }
 
+////////////////////////////////////////////////////////////////////
+// RequestBodyBull type
+////////////////////////////////////////////////////////////////////
 // RequestBodyNull IS A NULL BODY THAT'S JUST 4 NULL BYTES - USED WHEN ONLY THE CODE IS IMPORTANT
 type RequestBodyNull struct {
 	Data []byte
@@ -26,6 +29,9 @@ func (nb *RequestBodyNull) Unmarshall(b []byte) interface{}{
 	return nil
 }
 
+////////////////////////////////////////////////////////////////////
+// RequestBodyReadyForCommand type
+////////////////////////////////////////////////////////////////////
 // RequestBodyReadyForCommand IS EMPTY SINCE NO DATA IS NEEDED
 type RequestBodyReadyForCommand struct{}
 
@@ -37,4 +43,34 @@ func (rcb *RequestBodyReadyForCommand) Marshall() ([]byte, error) {
 // Unmarshall WILL DESERIALIZE IT TO NOTHING :)
 func (rcb *RequestBodyReadyForCommand) Unmarshall(b []byte) interface{} {
 	return nil
+}
+
+// NewRequestBodyReadyForCommand WILL RETURN A NEW ONE
+func NewRequestBodyReadyForCommand() *RequestBodyReadyForCommand {
+	return &RequestBodyReadyForCommand{}
+}
+
+////////////////////////////////////////////////////////////////////
+// RequestBodyPrintCommandData type
+////////////////////////////////////////////////////////////////////
+type RequestBodyPrintCommandData struct {
+	CommandData 		string
+}
+
+// Marshall WILL SERIALIZE IT TO BYTES
+func (pcd *RequestBodyPrintCommandData) Marshall() ([]byte, error) {
+	return []byte(pcd.CommandData), nil
+}
+
+// Unmarshall WILL DESERIALIZE IT TO THE STRUCT
+func (pcd *RequestBodyPrintCommandData) Unmarshall(b []byte) interface{} {
+	pcd.CommandData = string(b)
+	return nil
+}
+
+// NewRequestBodyPrintCommandData WILL BUILD A NEW RequestBodyPrintCommandData MESSAGE WITH THE SPECIFIED DATA
+func NewRequestBodyPrintCommandData(s string) *RequestBodyPrintCommandData {
+	return &RequestBodyPrintCommandData{
+		CommandData: s,
+	}
 }

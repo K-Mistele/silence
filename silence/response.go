@@ -2,6 +2,7 @@ package silence
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"math/rand"
 )
@@ -11,6 +12,7 @@ type ResponseMessageType uint8
 const (
 	ResponseMessageTypeNoop 			ResponseMessageType = 0x00
 	ResponseMessageTypeExecuteCommands 	ResponseMessageType = 0x01
+	ResponseMessageTypeTerminate		ResponseMessageType = 0x02
 
 	// OxFO-0xFF ARE ERROR CODES
 	ResponseMessageTypeErrorWithDebug 	ResponseMessageType = 0xF0
@@ -78,15 +80,23 @@ func (r *ResponseMessage) Unmarshall(data []byte) (err interface{} ) {
 	payload := data[8:]
 	decoded := xorDecode(&payload, r.Nonce)
 
+	var e interface{} = nil
 	if r.Code == ResponseMessageTypeExecuteCommands {
 		r.Body = &ResponseBodyExecuteCommands{}
-		e := r.Body.Unmarshall(decoded)
-		if e != nil {
-			r = nil
-			return e
-		}
+		e = r.Body.Unmarshall(decoded)
+
+	} else if r.Code == ResponseMessageTypeNoop {
+		r.Body = &ResponseBodyNoop{}
+		e = r.Body.Unmarshall(decoded)
+	} else {
+		e = errors.New(fmt.Sprintf("Invalid Response message type %v while unmarshalling", r.Code))
 	}
 
+	// IF THERE'S AN ERROR, INVALIDATE THE MESSAGE AND RETURN AN ERROR
+	if e != nil {
+		r = nil
+		return e
+	}
 	return nil
 }
 

@@ -59,7 +59,7 @@ func TestRequestUnmarshall(t *testing.T) {
 
 }
 
-// TEST THE READY FOR COMMAND MESSAGE
+// TEST THE RequestBodyReadyForCommand MESSAGE
 func TestReadyForCommandMessage(t *testing.T) {
 	body := &RequestBodyReadyForCommand{}
 	nonce := rand.Uint32()
@@ -98,37 +98,3 @@ func TestReadyForCommandMessage(t *testing.T) {
 
 }
 
-// TEST THE ResponseBodyExecuteCommands MESSAGE
-func TestResponseBodyExecuteCommands(t *testing.T) {
-
-	commands := []string{"id", "whoami", "ls -al"}
-
-	nonce := rand.Uint32()
-	nonceBytes := make([]byte, 4)
-	binary.LittleEndian.PutUint32(nonceBytes, nonce)
-
-	body := NewResponseBodyExecuteCommands(commands)
-	message := ResponseMessage{
-		Code:           ResponseMessageTypeExecuteCommands,
-		SequenceNumber: 0,
-		AckNumber:      0,
-		Nonce:          nonce,
-		Body:           body,
-
-	}
-
-	b, err := message.Marshall()
-	if err != nil {
-		t.Fatalf(fmt.Sprintf("%v", err))
-	}
-
-	message2 := ResponseMessage{}
-	message2.Unmarshall(b)
-	messagesMatch, errString := compareResponseMessages(&message, &message2)
-	if !messagesMatch {
-		fmt.Printf("%+v\n%+v\n", message.Body, message2.Body)
-		t.Fatalf(errString)
-	}
-
-
-}
