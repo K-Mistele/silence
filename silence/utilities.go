@@ -34,7 +34,7 @@ func xorDecode(bytes *[]byte, key uint32) []byte {
 
 // compareRequestMessages RETURNS IF TWO MESSAGES MATCH
 func compareRequestMessages (m *RequestMessage, m2 *RequestMessage) (bool, string){
-	if m.Type != m2.Type {
+	if m.Code != m2.Code {
 		return false, "Message Types don't match"
 	}
 	if m.SequenceNumber != m2.SequenceNumber {
@@ -60,7 +60,7 @@ func compareRequestMessages (m *RequestMessage, m2 *RequestMessage) (bool, strin
 
 // compareRequestMessages RETURNS IF TWO MESSAGES MATCH
 func compareResponseMessages (m *ResponseMessage, m2 *ResponseMessage) (bool, string){
-	if m.Type != m2.Type {
+	if m.Code != m2.Code {
 		return false, "Message Types don't match"
 	}
 	if m.SequenceNumber != m2.SequenceNumber {

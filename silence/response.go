@@ -25,11 +25,12 @@ const (
 // THE ResponseMessage IS THE MESSAGE FOR A REPLY FROM THE SERVER
 // IMPLEMENTS SilenceMessage
 type ResponseMessage struct {
-	Type 		 		ResponseMessageType		// PROTOCOL MESSAGE TYPE
-	SequenceNumber		uint8					// SEQUENCE NUMBER, 0-255 WITH WRAPAROUND
-	AckNumber			uint8					// THE SEQUENCE NUMBER FROM THE LAST CLIENT MESSAGE RECEIVED
-	Nonce				uint32					// A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE
-	Body 				ResponseMessageBody 	// A RESPONSE MESSAGE BODY DEPENDING ON THE MESSAGE TYPE
+
+	Code           ResponseMessageType // PROTOCOL MESSAGE TYPE
+	SequenceNumber uint8               // SEQUENCE NUMBER, 0-255 WITH WRAPAROUND
+	AckNumber      uint8               // THE SEQUENCE NUMBER FROM THE LAST CLIENT MESSAGE RECEIVED
+	Nonce          uint32              // A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE
+	Body           ResponseMessageBody // A RESPONSE MESSAGE BODY DEPENDING ON THE MESSAGE TYPE
 }
 
 // Marshall WILL BUILD OUT THE ResponseMessage INTO A STRING OF BYTES, PERFORM ENCODING OF THE PAYLOAD
@@ -37,7 +38,7 @@ func (r *ResponseMessage) Marshall() ([]byte, error) {
 
 	var messageBytes []byte
 	messageBytes = make([]byte, 3)
-	messageBytes[0] = uint8(r.Type)
+	messageBytes[0] = uint8(r.Code)
 	messageBytes[1] = r.SequenceNumber
 	messageBytes[2] = r.AckNumber
 
@@ -68,7 +69,7 @@ func (r *ResponseMessage) Unmarshall(data []byte) (err interface{} ) {
 		}
 	}()
 
-	r.Type = ResponseMessageType(data[0])
+	r.Code = ResponseMessageType(data[0])
 	r.SequenceNumber = data[1]
 	r.AckNumber = data[2]
 	r.Nonce = binary.LittleEndian.Uint32(data[3:7])
@@ -76,7 +77,7 @@ func (r *ResponseMessage) Unmarshall(data []byte) (err interface{} ) {
 	payload := data[7:]
 	decoded := xorDecode(&payload, r.Nonce)
 
-	if r.Type == ResponseMessageTypeExecuteCommands {
+	if r.Code == ResponseMessageTypeExecuteCommands {
 		r.Body = &ResponseBodyExecuteCommands{}
 		e := r.Body.Unmarshall(decoded)
 		if e != nil {
@@ -91,11 +92,11 @@ func (r *ResponseMessage) Unmarshall(data []byte) (err interface{} ) {
 func NewResponseMessage(t ResponseMessageType, seqNo uint8, ack uint8, body ResponseMessageBody) *ResponseMessage {
 
 	return &ResponseMessage{
-		Type: 				t,
-		SequenceNumber: 	seqNo,
-		AckNumber: 			ack,
-		Nonce: 				rand.Uint32(),
-		Body: 				body,
+		Code:           t,
+		SequenceNumber: seqNo,
+		AckNumber:      ack,
+		Nonce:          rand.Uint32(),
+		Body:           body,
 	}
 }
 

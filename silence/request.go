@@ -11,6 +11,14 @@ type SilenceMessage interface {
 	Unmarshall([]byte) interface{}
 }
 
+// SilenceMessageType DEFINES THE CODES THE IDENTIFY WHICH MESSAGE THIS IS, EITHER  A REQUEST OR RESPONSE
+// PROBABLY REDUNDANT BECAUSE OF UNDERLYING TRANSPORT ON ICMP WHICH IS DIRECTIONAL, BUT ALLOWS FOR EXTENSIBILITY
+type SilenceMessageType uint8
+const (
+	SilenceMessageRequest		SilenceMessageType = 0x01
+	SilenceMessageResponse		SilenceMessageType = 0x02
+)
+
 // RequestMessageType DEFINES TYPE CODES FOR SILENCE REQUESTS
 type RequestMessageType uint8
 
@@ -31,21 +39,23 @@ const (
 // RequestMessage IS THE MESSAGE FOR A SILENCE REQUEST TO THE SERVER
 // IMPLEMENTS SilenceMessage
 type RequestMessage struct {
-	Type           	RequestMessageType // PROTOCOL MESSAGE TYPE
-	SequenceNumber 	uint8              // SEQUENCE NUMBER, GOES 0->1->...255->0->1...
-	AckNumber		uint8				// THE SEQUENCE NUMBER FROM THE SERVER LAST RECEIVED
-	Nonce          	uint32             // A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE BODY
-	Body           	RequestMessageBody // A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
+	Type			SilenceMessageType	// DEFINE THE MESSAGE TYPE
+	Code           	RequestMessageType 	// CODE SPECIFIC TO THE MESSAGE TYPE
+	SequenceNumber 	uint8              	// SEQUENCE NUMBER, GOES 0->1->...255->0->1...
+	AckNumber      	uint8              	// THE SEQUENCE NUMBER FROM THE SERVER LAST RECEIVED
+	Nonce          	uint32             	// A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE BODY
+	Body           	RequestMessageBody 	// A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
 }
 
 // Marshall WILL BUILD OUT THE RequestMessage INTO A STRING OF BYTES, PERFORMING ENCODING AS APPROPRIATE
 func (r *RequestMessage) Marshall() ([]byte, error) {
 
 	var messageBytes []byte
-	messageBytes = make([]byte, 3) // 6 BYTES FOR 48 BITS
+	messageBytes = make([]byte, 4) // 6 BYTES FOR 48 BITS
 	messageBytes[0] = uint8(r.Type)
-	messageBytes[1] = r.SequenceNumber
-	messageBytes[2] = r.AckNumber
+	messageBytes[1] = uint8(r.Code)
+	messageBytes[2] = r.SequenceNumber
+	messageBytes[3] = r.AckNumber
 
 	nonceBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(nonceBytes, r.Nonce)
@@ -75,16 +85,17 @@ func (r *RequestMessage) Unmarshall(data []byte) (err interface{}) {
 	}()
 
 	// PULL HEADER FIELDS OUT
-	r.Type = RequestMessageType(data[0])
-	r.SequenceNumber = data[1]
-	r.AckNumber = data[2]
-	r.Nonce = binary.LittleEndian.Uint32(data[3:7])
+	r.Type = SilenceMessageType(data[0])
+	r.Code = RequestMessageType(data[1])
+	r.SequenceNumber = data[2]
+	r.AckNumber = data[3]
+	r.Nonce = binary.LittleEndian.Uint32(data[4:8])
 
 	// GET THE PAYLOAD SLICE AND DECODE IT - XOR BY NONCE
-	payload := data[7:]
+	payload := data[8:]
 	decoded := xorDecode(&payload, r.Nonce)
 
-	if r.Type == RequestMessageTypeReadyForCommand {
+	if r.Code == RequestMessageTypeReadyForCommand {
 		r.Body = &RequestBodyReadyForCommand{}
 		r.Body.Unmarshall(decoded)
 	} else {
@@ -98,9 +109,9 @@ func (r *RequestMessage) Unmarshall(data []byte) (err interface{}) {
 // NewRequestMessage WILL BUILD A NEW RequestMessage WITH A RANDOM NONCE
 func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body RequestMessageBody) *RequestMessage {
 	return &RequestMessage{
-		Type:           t,
+		Code:           t,
 		SequenceNumber: seqNo,
-		AckNumber: 		ack,
+		AckNumber:      ack,
 		Nonce:          rand.Uint32(),
 		Body:           body,
 	}

@@ -13,9 +13,10 @@ func TestRequestMarshall(t *testing.T) {
 
 	// BUILD A RequestMessage AND MARSHALL IT TO BYTES
 	m := RequestMessage{
-		Type:           RequestMessageTypeReadyForCommand,
+		Type: 			SilenceMessageRequest,
+		Code:           RequestMessageTypeReadyForCommand,
 		SequenceNumber: 1,
-		AckNumber: 0,
+		AckNumber:      0,
 		Nonce:          0x41424344,
 		Body:           &RequestBodyNull{},
 	}
@@ -25,7 +26,7 @@ func TestRequestMarshall(t *testing.T) {
 	}
 
 	// BUILD WHAT WE THINK RequestMessage SHOULD LOOK LIKE AND MAKE SURE THEY MATCH
-	c := []byte {0x01, 0x01, 0x00, 0x44, 0x43, 0x42, 0x41, 0x00 ^ 0x44, 0x00 ^ 0x43, 0x00 ^ 0x42, 0x00 ^ 0x41}
+	c := []byte {uint8(SilenceMessageRequest), 0x01, 0x01, 0x00, 0x44, 0x43, 0x42, 0x41, 0x00 ^ 0x44, 0x00 ^ 0x43, 0x00 ^ 0x42, 0x00 ^ 0x41}
 	if bytes.Compare(b, c) != 0 {
 		t.Fatalf("Serializing request failed: expected %v amd got %v\n", c, b)
 	}
@@ -35,9 +36,10 @@ func TestRequestMarshall(t *testing.T) {
 func TestRequestUnmarshall(t *testing.T) {
 	// BUILD A RequestMessage AND MARSHALL IT TO BYTES
 	m := RequestMessage{
-		Type:           RequestMessageTypeReadyForCommand,
+		Type: 			SilenceMessageRequest,
+		Code:           RequestMessageTypeReadyForCommand,
 		SequenceNumber: 1,
-		AckNumber: 		0,
+		AckNumber:      0,
 		Nonce:          0x41424344,
 		Body:           &RequestBodyReadyForCommand{},
 	}
@@ -65,9 +67,10 @@ func TestReadyForCommandMessage(t *testing.T) {
 	binary.LittleEndian.PutUint32(nonceBytes, nonce)
 
 	message := RequestMessage{
-		Type:           RequestMessageTypeReadyForCommand,
+		Type: 			SilenceMessageRequest,
+		Code:           RequestMessageTypeReadyForCommand,
 		SequenceNumber: 2,
-		AckNumber: 		0,
+		AckNumber:      0,
 		Nonce:          nonce,
 		Body:           body,
 	}
@@ -76,7 +79,7 @@ func TestReadyForCommandMessage(t *testing.T) {
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("%v", err))
 	}
-	expected := []byte {uint8(RequestMessageTypeReadyForCommand), 2, 0, nonceBytes[0], nonceBytes[1], nonceBytes[2], nonceBytes[3]}
+	expected := []byte {uint8(SilenceMessageRequest), uint8(RequestMessageTypeReadyForCommand), 2, 0, nonceBytes[0], nonceBytes[1], nonceBytes[2], nonceBytes[3]}
 
 	if bytes.Compare(b, expected) != 0 {
 		t.Fatalf("Failed to construct a Ready for Command Message. Expected %v but got %v\n", expected, b)
@@ -106,11 +109,11 @@ func TestResponseBodyExecuteCommands(t *testing.T) {
 
 	body := NewResponseBodyExecuteCommands(commands)
 	message := ResponseMessage{
-		Type: 			ResponseMessageTypeExecuteCommands,
+		Code:           ResponseMessageTypeExecuteCommands,
 		SequenceNumber: 0,
-		AckNumber: 		0,
-		Nonce:			nonce,
-		Body: 			body,
+		AckNumber:      0,
+		Nonce:          nonce,
+		Body:           body,
 
 	}
 
