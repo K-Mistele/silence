@@ -7,23 +7,23 @@ import (
 )
 
 type SilenceMessage interface {
-	Marshall() []byte
-	Unmarshall([]byte)
+	Marshall() ([]byte, error)
+	Unmarshall([]byte) interface{}
 }
 
 // RequestMessageType DEFINES TYPE CODES FOR SILENCE REQUESTS
 type RequestMessageType uint8
-const (
 
-	ReadyForCommand			RequestMessageType = 0x01
-	CommandAcknowledged		RequestMessageType = 0x02
-	CommandOutput			RequestMessageType = 0x03
+const (
+	RequestMessageTypeReadyForCommand     RequestMessageType = 0x01
+	RequestMessageTypeCommandAcknowledged RequestMessageType = 0x02
+	RequestMessageTypeCommandOutput       RequestMessageType = 0x03
 
 	// 0xF0-0xFF ARE ERROR CODES
-	ErrorWithDebug			RequestMessageType = 0xF0
-	ErrorGoBackToMessage	RequestMessageType = 0xF1
-
+	RequestMessageTypeErrorWithDebug RequestMessageType = 0xF0
+	RequestMessageTypeErrorGoBack    RequestMessageType = 0xF1
 )
+
 ////////////////////////////////////////////////////////////////////
 // RequestMessage type
 ////////////////////////////////////////////////////////////////////
@@ -31,70 +31,78 @@ const (
 // RequestMessage IS THE MESSAGE FOR A SILENCE REQUEST TO THE SERVER
 // IMPLEMENTS SilenceMessage
 type RequestMessage struct {
-	Type 				RequestMessageType	// PROTOCOL MESSAGE TYPE
-	SequenceNumber		uint8				// SEQUENCE NUMBER, GOES 0->1->...255->0->1...
-	Nonce				uint32				// A RANDOM 32-BIT INTENER TO XOR WITH THE MESSAGE BODY
-	Body				RequestMessageBody	// A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
+	Type           	RequestMessageType // PROTOCOL MESSAGE TYPE
+	SequenceNumber 	uint8              // SEQUENCE NUMBER, GOES 0->1->...255->0->1...
+	AckNumber		uint8				// THE SEQUENCE NUMBER FROM THE SERVER LAST RECEIVED
+	Nonce          	uint32             // A RANDOM 32-BIT INTEGER TO XOR WITH THE MESSAGE BODY
+	Body           	RequestMessageBody // A REQUEST MESSAGE BODY, DEPENDING ON WHAT THE BODY IS
 }
 
 // Marshall WILL BUILD OUT THE RequestMessage INTO A STRING OF BYTES, PERFORMING ENCODING AS APPROPRIATE
-func (r *RequestMessage) Marshall() []byte {
+func (r *RequestMessage) Marshall() ([]byte, error) {
 
-	headerBytes := make([]byte, 2)	// 6 BYTES FOR 48 BITS
-	headerBytes[0] = uint8(r.Type)
-	headerBytes[1] = r.SequenceNumber
+	var messageBytes []byte
+	messageBytes = make([]byte, 3) // 6 BYTES FOR 48 BITS
+	messageBytes[0] = uint8(r.Type)
+	messageBytes[1] = r.SequenceNumber
+	messageBytes[2] = r.AckNumber
 
 	nonceBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(nonceBytes, r.Nonce)
-	headerBytes = append(headerBytes, nonceBytes...)
+	messageBytes = append(messageBytes, nonceBytes...)
 
-	bodyBytes := r.Body.Marshall()
+	bodyBytes, err := r.Body.Marshall()
+	if err != nil {
+		return messageBytes, err
+	}
 	encodedBytes := xorEncode(&bodyBytes, r.Nonce)
-	headerBytes = append(headerBytes, encodedBytes...)
+	messageBytes = append(messageBytes, encodedBytes...)
 
-	fmt.Println(headerBytes)
-
-	return headerBytes
+	return messageBytes, nil
 }
 
 // Unmarshall WILL ATTEMPT TO UNMARSHALL THE BYTES INTO THE REQUEST MESSAGE. IF THERE'S AN ERROR, THE MESSAGE WILL BE NIL
-func (r *RequestMessage) Unmarshall(data []byte) {
+func (r *RequestMessage) Unmarshall(data []byte) (err interface{}) {
 
+	err = nil
 	// IF THE MESSAGE IS MALFORMED, RECOVER AND DON'T DO ANYTHING
 	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("Recovered from panic while unmarshalling: ", r)
+		if p := recover(); p != nil {
+			fmt.Println("Recovered from panic while unmarshalling: ", p)
 			r = nil
+			err = p
 		}
 	}()
 
 	// PULL HEADER FIELDS OUT
 	r.Type = RequestMessageType(data[0])
 	r.SequenceNumber = data[1]
-	r.Nonce = binary.LittleEndian.Uint32(data[2:6])
+	r.AckNumber = data[2]
+	r.Nonce = binary.LittleEndian.Uint32(data[3:7])
 
 	// GET THE PAYLOAD SLICE AND DECODE IT - XOR BY NONCE
-	payload := data[6:]
+	payload := data[7:]
 	decoded := xorDecode(&payload, r.Nonce)
 
-	if r.Type == ReadyForCommand {
-		r.Body = &ReadyForCommandBody{}
+	if r.Type == RequestMessageTypeReadyForCommand {
+		r.Body = &RequestBodyReadyForCommand{}
 		r.Body.Unmarshall(decoded)
 	} else {
 		// DEFAULT
-		r.Body = &NullRequestBody{}
+		r.Body = &RequestBodyNull{}
 	}
 
-
+	return err
 }
 
 // NewRequestMessage WILL BUILD A NEW RequestMessage WITH A RANDOM NONCE
-func NewRequestMessage(t RequestMessageType, seqNo uint8, body RequestMessageBody) *RequestMessage {
+func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body RequestMessageBody) *RequestMessage {
 	return &RequestMessage{
-		Type: t,
+		Type:           t,
 		SequenceNumber: seqNo,
-		Nonce: rand.Uint32(),
-		Body: body,
+		AckNumber: 		ack,
+		Nonce:          rand.Uint32(),
+		Body:           body,
 	}
 }
 
@@ -104,38 +112,35 @@ func NewRequestMessage(t RequestMessageType, seqNo uint8, body RequestMessageBod
 
 // RequestMessageBody DEFINES AN INTERFACE FOR DIFFERENT REQUEST MESSAGE BODY TYPES
 type RequestMessageBody interface {
-	Marshall() []byte
-	Unmarshall([]byte)
-
+	Marshall() ([]byte, error)
+	Unmarshall([]byte) interface{}
 }
 
-// NullRequestBody IS A NULL BODY THAT'S JUST 4 NULL BYTES
-type NullRequestBody struct {
+// RequestBodyNull IS A NULL BODY THAT'S JUST 4 NULL BYTES - USED WHEN ONLY THE CODE IS IMPORTANT
+type RequestBodyNull struct {
 	Data []byte
 }
 
 // Marshall WILL SERIALIZE THE NULL BODY AND RETURN IT
-func (nb *NullRequestBody) Marshall() []byte {
-	return []byte {0, 0, 0, 0}
+func (nb *RequestBodyNull) Marshall() ([]byte, error) {
+	return []byte{0, 0, 0, 0}, nil
 }
 
 // Unmarshall WILL UPDATE THE POINTER WITH THE PROPERTIES FROM THE BYTES
-func (nb *NullRequestBody) Unmarshall(b []byte) {
-	nb.Data = []byte {0, 0, 0, 0}
+func (nb *RequestBodyNull) Unmarshall(b []byte) interface{}{
+	nb.Data = []byte{0, 0, 0, 0}
+	return nil
 }
 
-// ReadyForCommandBody IS EMPTY SINCE NO DATA IS NEEDED
-type ReadyForCommandBody struct {
-
-}
+// RequestBodyReadyForCommand IS EMPTY SINCE NO DATA IS NEEDED
+type RequestBodyReadyForCommand struct{}
 
 // Marshall WILL SERIALIZE IT TO NOTHING :)
-func (rcb *ReadyForCommandBody) Marshall() []byte {
-	return []byte{}
+func (rcb *RequestBodyReadyForCommand) Marshall() ([]byte, error) {
+	return []byte{}, nil
 }
 
 // Unmarshall WILL DESERIALIZE IT TO NOTHING :)
-func (rcb *ReadyForCommandBody) Unmarshall(b []byte)  {
-	return
+func (rcb *RequestBodyReadyForCommand) Unmarshall(b []byte) interface{} {
+	return nil
 }
-

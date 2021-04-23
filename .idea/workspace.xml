@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15619055-0774-42a5-9afe-ea1a24a7c9b5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/silence/config.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/silence/request.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/request.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/silence/request_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/request_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/response.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/silence/utilities.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/utilities.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +45,7 @@
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager">
     <configuration name="go test silence" type="GoTestRunConfiguration" factoryName="Go Test" nameIsGenerated="true">
@@ -71,6 +73,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
