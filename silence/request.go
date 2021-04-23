@@ -6,18 +6,7 @@ import (
 	"math/rand"
 )
 
-type SilenceMessage interface {
-	Marshall() ([]byte, error)
-	Unmarshall([]byte) interface{}
-}
 
-// SilenceMessageType DEFINES THE CODES THE IDENTIFY WHICH MESSAGE THIS IS, EITHER  A REQUEST OR RESPONSE
-// PROBABLY REDUNDANT BECAUSE OF UNDERLYING TRANSPORT ON ICMP WHICH IS DIRECTIONAL, BUT ALLOWS FOR EXTENSIBILITY
-type SilenceMessageType uint8
-const (
-	SilenceMessageRequest		SilenceMessageType = 0x01
-	SilenceMessageResponse		SilenceMessageType = 0x02
-)
 
 // RequestMessageType DEFINES TYPE CODES FOR SILENCE REQUESTS
 type RequestMessageType uint8
@@ -109,6 +98,7 @@ func (r *RequestMessage) Unmarshall(data []byte) (err interface{}) {
 // NewRequestMessage WILL BUILD A NEW RequestMessage WITH A RANDOM NONCE
 func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body RequestMessageBody) *RequestMessage {
 	return &RequestMessage{
+		Type: 			SilenceMessageRequest,
 		Code:           t,
 		SequenceNumber: seqNo,
 		AckNumber:      ack,
@@ -117,41 +107,3 @@ func NewRequestMessage(t RequestMessageType, seqNo uint8, ack uint8, body Reques
 	}
 }
 
-////////////////////////////////////////////////////////////////////
-// RequestMessageBody type
-////////////////////////////////////////////////////////////////////
-
-// RequestMessageBody DEFINES AN INTERFACE FOR DIFFERENT REQUEST MESSAGE BODY TYPES
-type RequestMessageBody interface {
-	Marshall() ([]byte, error)
-	Unmarshall([]byte) interface{}
-}
-
-// RequestBodyNull IS A NULL BODY THAT'S JUST 4 NULL BYTES - USED WHEN ONLY THE CODE IS IMPORTANT
-type RequestBodyNull struct {
-	Data []byte
-}
-
-// Marshall WILL SERIALIZE THE NULL BODY AND RETURN IT
-func (nb *RequestBodyNull) Marshall() ([]byte, error) {
-	return []byte{0, 0, 0, 0}, nil
-}
-
-// Unmarshall WILL UPDATE THE POINTER WITH THE PROPERTIES FROM THE BYTES
-func (nb *RequestBodyNull) Unmarshall(b []byte) interface{}{
-	nb.Data = []byte{0, 0, 0, 0}
-	return nil
-}
-
-// RequestBodyReadyForCommand IS EMPTY SINCE NO DATA IS NEEDED
-type RequestBodyReadyForCommand struct{}
-
-// Marshall WILL SERIALIZE IT TO NOTHING :)
-func (rcb *RequestBodyReadyForCommand) Marshall() ([]byte, error) {
-	return []byte{}, nil
-}
-
-// Unmarshall WILL DESERIALIZE IT TO NOTHING :)
-func (rcb *RequestBodyReadyForCommand) Unmarshall(b []byte) interface{} {
-	return nil
-}
