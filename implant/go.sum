@@ -1,2 +1,14 @@
 github.com/k-mistele/silence/silence/transport v0.0.0-20210428202001-6cd45a773461 h1:1AYH/7Sm1vPwd5SZx09sbi+tdvTQf3rIXEeWmWAuQYw=
 github.com/k-mistele/silence/silence/transport v0.0.0-20210428202001-6cd45a773461/go.mod h1:PWTO4ETZnljzc29Z0MNoxbpJkZ5o9mz/HNrJQ2BpnS4=
+github.com/k-mistele/silence/silence/transport v0.0.0-20210429215947-9642bf450962 h1:MG1ndwFLg2q0Jh5N1xufLA2Ca/iUzKfGYO4z+yp+j98=
+github.com/k-mistele/silence/silence/transport v0.0.0-20210429215947-9642bf450962/go.mod h1:PWTO4ETZnljzc29Z0MNoxbpJkZ5o9mz/HNrJQ2BpnS4=
+golang.org/x/net v0.0.0-20210428140749-89ef3d95e781 h1:DzZ89McO9/gWPsQXS/FVKAlG02ZjaQ6AlZRBimEYOd0=
+golang.org/x/net v0.0.0-20210428140749-89ef3d95e781/go.mod h1:OJAsFXCWl8Ukc7SiCT/9KSuxbyM7479/AVlXFRxuMCk=
+golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210423082822-04245dca01da h1:b3NXsE2LusjYGGjL5bxEVZZORm/YEFFrWFjR8eFrw/c=
+golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 h1:dXfMednGJh/SUUFjTLsWJz3P+TQt9qnR11GgeI3vWKs=
+golang.org/x/sys v0.0.0-20210426230700-d19ff857e887/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
+golang.org/x/text v0.3.6/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
+golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=

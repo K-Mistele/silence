@@ -12,20 +12,22 @@ type Datagram struct {
 	EndpointID     uint16 // 2 BYTES
 	SequenceNumber uint32 // 4 BYTES
 	AckNumber      uint32 // 4 BYTES
-	Flags          struct {
-		SYN        bool // 10000000
-		ACK        bool // 01000000
-		FIN        bool // 00100000
-		ERR_RST    bool // 00010000
-		IsFragment bool // 00001000
-		Retransmit bool // 00000100
-		Reserved1  bool // 00000010
-		Reserved2  bool // 00000001
-	}
+	Flags          DatagramFlags
 	Checksum       uint32 // 4 BYTES
 	FragmentNumber uint32 // 4 BYTES
 	TotalFragments uint32 // 4 BYTES
 	Data           []byte // 525 bytes
+}
+
+type DatagramFlags struct {
+	SYN        bool // 10000000
+	ACK        bool // 01000000
+	FIN        bool // 00100000
+	ERR_RST    bool // 00010000
+	IsFragment bool // 00001000
+	Retransmit bool // 00000100
+	Reserved1  bool // 00000010
+	Reserved2  bool // 00000001
 }
 
 // Marshall WILL CONVERT THE DATAGRAM TO A BYTE SLICE
