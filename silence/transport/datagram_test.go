@@ -12,14 +12,14 @@ func TestDatagramEncoding(t *testing.T) {
 		SequenceNumber: 2,
 		AckNumber:      3,
 		Flags:          struct {
-			SYN 			bool // 10000000
-			ACK 			bool // 01000000
-			FIN 			bool // 00100000
-			RST 			bool // 00010000
-			IsFragment		bool // 00001000
-			Retransmit		bool // 00000100
-			Reserved1		bool // 00000010
-			Reserved2 		bool // 00000001
+			SYN        bool // 10000000
+			ACK        bool // 01000000
+			FIN        bool // 00100000
+			ERR_RST    bool // 00010000
+			IsFragment bool // 00001000
+			Retransmit bool // 00000100
+			Reserved1  bool // 00000010
+			Reserved2  bool // 00000001
 		}{
 			true,
 			true,
