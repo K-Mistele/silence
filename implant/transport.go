@@ -1,8 +1,7 @@
 package main
 
 import (
-	transport "github.com/k-mistele/silence/silence/transport"
-	icmp "golang.org/x/net/icmp"
+	"golang.org/x/net/icmp"
 )
 
 // transportConnection REPRESENTS A TRANSPORT LAYER CONNECTION WITH THE SERVER THAT PROVIDES
@@ -46,9 +45,3 @@ func (tc *transportConnection) sendMessage(message []byte) (response []byte, err
 	// TODO: FRAGMENT AS NECESSARY, START WITH A SEQUENCE NUMBER
 	return []byte{}, nil
 }
-
-func (tc *transportConnection) sendPacket(flags transport.DatagramFlags) {
-
-	 tc.curSequenceNumber += 1
-}
-
