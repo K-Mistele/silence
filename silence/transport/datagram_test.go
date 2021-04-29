@@ -8,14 +8,32 @@ func TestDatagramEncoding(t *testing.T) {
 	var d1, d2 *Datagram
 
 	d1 = &Datagram{
-		EndpointID: 1,
+		EndpointID:     1,
 		SequenceNumber: 2,
-		AckNumber: 3,
-		Flags: 4,
-		Checksum: 5,
+		AckNumber:      3,
+		Flags:          struct {
+			SYN 			bool // 10000000
+			ACK 			bool // 01000000
+			FIN 			bool // 00100000
+			RST 			bool // 00010000
+			IsFragment		bool // 00001000
+			Retransmit		bool // 00000100
+			Reserved1		bool // 00000010
+			Reserved2 		bool // 00000001
+		}{
+			true,
+			true,
+			false,
+			false,
+			false,
+			false,
+			true,
+			false,
+		},
+		Checksum:       5,
 		FragmentNumber: 6,
-		Reserved: 7,
-		Data: []byte{0x41, 0x42, 0x43, 0x44},
+		TotalFragments: 7,
+		Data:           []byte{0x41, 0x42, 0x43, 0x44},
 	}
 
 	d2 = &Datagram{}

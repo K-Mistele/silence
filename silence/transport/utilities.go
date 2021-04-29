@@ -10,7 +10,7 @@ func datagramsAreEqual(d1 *Datagram, d2 *Datagram) bool {
 			d1.Flags != d2.Flags ||
 			d1.Checksum != d2.Checksum ||
 			d1.FragmentNumber != d2.FragmentNumber ||
-			d1.Reserved != d2.Reserved ||
+			d1.TotalFragments != d2.TotalFragments ||
 			bytes.Compare(d1.Data, d2.Data) != 0 {
 		return false
 	} else {

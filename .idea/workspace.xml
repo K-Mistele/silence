@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15619055-0774-42a5-9afe-ea1a24a7c9b5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/implant/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/silence/transport/client.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/silence/transport/server.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/implant/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/implant/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/implant/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/implant/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/implant/transport.go" beforeDir="false" afterPath="$PROJECT_DIR$/implant/transport.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/transport/datagram.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/transport/datagram.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/transport/datagram_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/transport/datagram_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/silence/transport/utilities.go" beforeDir="false" afterPath="$PROJECT_DIR$/silence/transport/utilities.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
