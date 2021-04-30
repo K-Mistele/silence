@@ -13,7 +13,7 @@ func TestDatagramSend(t *testing.T) {
 
 	var err error
 	// SETUP ADDRESS INFORMATION
-	listenerAddress, err = net.ResolveIPAddr("ip4", "1.1.1.1")
+	listenerAddress, err = net.ResolveIPAddr("ip4", "10.0.2.23")
 
 	tc, err := connect(listenerAddress)
 	if err != nil {

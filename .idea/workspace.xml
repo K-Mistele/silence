@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="15619055-0774-42a5-9afe-ea1a24a7c9b5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/implant/transport_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/implant/transport_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +45,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/implant" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="Go Test.go test silence.transport">
+  <component name="RunManager" selected="Go Test.go test implant">
     <configuration name="go test implant" type="GoTestRunConfiguration" factoryName="Go Test">
       <module name="silence" />
       <working_directory value="$PROJECT_DIR$/implant" />
