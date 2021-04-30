@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/k-mistele/silence/silence/transport"
 )
 
 // process EACH PACKET AS IT HITS THE WIRE
@@ -28,7 +29,7 @@ func process(packet gopacket.Packet) error {
 	icmpLayer, _ = icmp.(*layers.ICMPv4)
 
 	// MAKE SURE WE'RE ONLY READING ECHO REQUESTS TO OUR INTERFACE
-	if ip4Layer.DstIP.String() != iFaceAddress || icmpLayer.TypeCode.Type() != layers.ICMPv4TypeEchoRequest {
+	if ip4Layer.DstIP.String() != interfaceAddress.String() || icmpLayer.TypeCode.Type() != layers.ICMPv4TypeEchoRequest {
 		return nil
 	}
 
@@ -36,6 +37,15 @@ func process(packet gopacket.Packet) error {
 	fmt.Printf("IPv4: %+v\n", ip4Layer)
 	fmt.Printf("ICMP: %+v\n", icmpLayer)
 	fmt.Println("Payload", payload.LayerContents(), len(payload.LayerContents()))
+
+	// DECODE THE DATAGRAM
+	var datagram transport.Datagram
+	err := datagram.Unmarshall(payload.LayerContents())
+	if err != nil {
+		fmt.Printf("Error decoding datagram: %v\n", err)
+		return errors.New(fmt.Sprintf("%v", err))
+	}
+	fmt.Printf("Decoded datagram: %+v", datagram)
 
 	return nil
 }

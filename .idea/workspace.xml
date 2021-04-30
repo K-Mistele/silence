@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15619055-0774-42a5-9afe-ea1a24a7c9b5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/listener/transport_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/listener/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/listener/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/listener/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/listener/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/listener/inbound_processing.go" beforeDir="false" afterPath="$PROJECT_DIR$/listener/inbound_processing.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/listener/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/listener/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,9 +46,22 @@
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/implant" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="go.vgo" />
   </component>
-  <component name="RunManager" selected="Go Test.go test listener">
+  <component name="RunManager" selected="Go Build.go build listener">
+    <configuration name="go build listener" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="silence" />
+      <working_directory value="$PROJECT_DIR$/listener" />
+      <go_parameters value="-i" />
+      <parameters value="-iface eth0" />
+      <sudo value="true" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$/listener" />
+      <filePath value="$PROJECT_DIR$/listener" />
+      <output_directory value="$PROJECT_DIR$/listener/.out" />
+      <method v="2" />
+    </configuration>
     <configuration name="go test implant" type="GoTestRunConfiguration" factoryName="Go Test">
       <module name="silence" />
       <working_directory value="$PROJECT_DIR$/implant" />
@@ -89,6 +105,7 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Go Build.go build listener" />
       <item itemvalue="Go Test.go test implant" />
       <item itemvalue="Go Test.go test listener" />
       <item itemvalue="Go Test.go test silence" />

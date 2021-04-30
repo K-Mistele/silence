@@ -1,48 +1,61 @@
 package main
 
 import (
-	"github.com/google/gopacket/pcap"
-	"github.com/google/gopacket"
-	"net"
 	"flag"
 	"fmt"
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/pcap"
+	"net"
 )
 
-var iFaceName, iFaceAddress string
+var interfaceAddress net.IP
 
-func main() {
+func getLocalAddr() (net.IP, string, error){
 
+	var interfaceName string
+	var err error
 	// COMMAND LINE ARGUMENT PARSING
-	flag.StringVar(&iFaceName, "interface", "eth0", "The name of the network interface to listen on")
+	flag.StringVar(&interfaceName, "iface", "eth0", "The name of the network interface to listen on")
 	flag.Parse()
 
 	// GET INTERFACE IP ADDRESS
-	fmt.Printf("Capturing packets on interface %s\n", iFaceName)
-	iFace, err := net.InterfaceByName(iFaceName)
+	fmt.Printf("Capturing packets on interface %s\n", interfaceName)
+	iFace, err := net.InterfaceByName(interfaceName)
 	if err != nil {panic (err)}
 	addrs, err := iFace.Addrs()
-	if err != nil {panic (err)}
+	if err != nil {return interfaceAddress, interfaceName, nil }
 
-	var interfaceAddress net.IP
 	for _, addr := range addrs {
 		interfaceAddress = addr.(*net.IPNet).IP.To4()
 		break
 	}
-	iFaceAddress = interfaceAddress.String()
-	fmt.Printf("Interface IP address is %s\n", iFaceAddress)
+	fmt.Printf("Interface IP address is %s\n", interfaceAddress.String())
+	return interfaceAddress, interfaceName, err
+}
 
-	// CREATE THE PACKET CAPTURE
-	handle, err := pcap.OpenLive(iFaceName, 3600, true, pcap.BlockForever)
+func main() {
+
+	_, interfaceName, err := getLocalAddr()
 	if err != nil {
 		panic(err)
 	}
-	filter := fmt.Sprintf("icmp and ip.dst == %s and icmp.type == 8", interfaceAddress)
-	handle.SetBPFFilter(filter)
 
-	// FILTER FOR ICMP MESSAGES DESTINED TO MY INTERFACE
-	//filterString := fmt.Sprintf("icmp")
-	//fmt.Println(filterString)
-	//if err = handle.SetBPFFilter(filterString); err != nil {panic (err)}
+	// CREATE THE PACKET CAPTURE
+	handle, err := pcap.OpenLive(interfaceName, 3600, true, pcap.BlockForever)
+	if err != nil {
+		panic(err)
+	}
+
+	// FILTER FOR ICMP ECHO REQUESTS WITH DESTINATION HOST OF ME, THE LISTENER. THESE ARE THE ONLY ONES WE CARE ABOUT.
+	filter := fmt.Sprintf("icmp and icmp[icmptype] == icmp-echo and dst host %s", interfaceAddress.String())
+	err = handle.SetBPFFilter(filter)
+	if err != nil {
+		fmt.Printf("Failed to set packet filter: %v; filter string: %s\n", err, filter)
+	} else {
+		fmt.Printf("Applied filter '%s'\n", filter)
+	}
+
+	fmt.Println("Ready to start processing packets!")
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 
 	// PROCESS PACKETS
