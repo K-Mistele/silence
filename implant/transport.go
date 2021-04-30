@@ -1,13 +1,19 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	"github.com/k-mistele/silence/silence/transport"
 	"golang.org/x/net/icmp"
+	"golang.org/x/net/ipv4"
+	"math/rand"
+	"net"
 )
 
 // transportConnection REPRESENTS A TRANSPORT LAYER CONNECTION WITH THE SERVER THAT PROVIDES
 // THE INTERFACE TO INTERACT WITH IT AT THE TRANSPORT LEVEL TO HANDLE FLOW AND ERROR CONTROL
 type transportConnection struct {
-	ListenerAddress    string
+	ListenerAddress    *net.IPAddr
 	EndpointID         uint16
 	Conn               *icmp.PacketConn
 	ErrorState         error
@@ -18,7 +24,7 @@ type transportConnection struct {
 }
 
 
-func connect(listenerAddress string) (*transportConnection, error) {
+func connect(addr *net.IPAddr) (*transportConnection, error) {
 
 	conn, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
 	if err != nil { return nil, err}
@@ -38,10 +44,48 @@ func connect(listenerAddress string) (*transportConnection, error) {
 	return tc, nil
 }
 
-func (tc *transportConnection) sendMessage(message []byte) (response []byte, err error) {
+func (tc *transportConnection) sendFromApplicationLayer(message []byte) (response []byte, err error) {
 
 	// TODO START LISTENER HERE AND PUSH MESSAGES INTO A CHANNEL WHERE THEY CAN BE SORTED AND THEN RETURNED
 
 	// TODO: FRAGMENT AS NECESSARY, START WITH A SEQUENCE NUMBER
 	return []byte{}, nil
+}
+
+func (tc *transportConnection) sendToICMPLayer(datagram transport.Datagram) error {
+
+	// MARSHALL THE TRANSPORT LAYER DATAGRAM TO BYTES
+	transportBytes, err := datagram.Marshall()
+	if err != nil {
+		return err
+	}
+
+	// DOUBLE CHECK IT'S SMALL ENOUGH TO TUNNEL. IT SHOULD BE FINE, BUT DOUBLE CHECK
+	if len(transportBytes) > 548 {
+		return errors.New(fmt.Sprintf("datagram %+v is too long for icmp encapsulation", datagram))
+	}
+
+	// BUILD ECHO REPLY
+	icmpMessage := icmp.Message{
+		Type: ipv4.ICMPTypeEcho,
+		Code: 0,
+		Body: &icmp.Echo {
+			ID: 	rand.Int(),
+			Seq: 	int(tc.curSequenceNumber % 65535),
+			Data: 	transportBytes,
+		},
+	}
+
+
+	// MARSHALL THE ECHO REQUEST AND PUT IT ON THE WIRE
+	networkBytes, err := icmpMessage.Marshal(nil )
+	if err != nil {
+		return nil
+	}
+
+	_, err = tc.Conn.WriteTo(networkBytes, tc.ListenerAddress)
+	if err != nil {
+		return err
+	}
+	return nil
 }
